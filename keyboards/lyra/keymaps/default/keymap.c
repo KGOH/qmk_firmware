@@ -73,15 +73,58 @@ void matrix_scan_user(void) {
 
 }
 
-bool led_update_user(led_t led_state) {
-    return true;
-}
-*/
-
 void keyboard_post_init_user(void) {
     // Customise these values to desired behaviour
     debug_enable=true;
     debug_matrix=true;
     debug_keyboard=true;
     //debug_mouse=true;
+}
+*/
+
+static bool indicators = true;
+static uint8_t R = 0x00;
+static uint8_t G = 0x00;
+static uint8_t B = 0x00;
+
+layer_state_t layer_state_set_user(layer_state_t state) {
+    switch (get_highest_layer(state)) {
+    case 1:
+        indicators = false;
+        rgblight_setrgb (0x00,  0xFF, 0x00);
+        break;
+    case 2:
+        indicators = false;
+        rgblight_setrgb (0xFF,  0xFF, 0x00);
+        break;
+    case 3:
+        indicators = false;
+        rgblight_setrgb (0xFF,  0x00, 0xFF);
+        break;
+    default:
+        indicators = true;
+        rgblight_setrgb (R, G, B);
+        break;
+    }
+    return state;
+}
+
+bool led_init_user(led_t led_state) {
+    R = led_state.caps_lock ? 0xFF : 0x00;
+    G = led_state.scroll_lock ? 0xFF : 0x00;
+    B = led_state.num_lock ? 0xFF : 0x00;
+    if (indicators) {
+        rgblight_setrgb (R, G, B);
+    }
+    return true;
+}
+
+bool led_update_user(led_t led_state) {
+    R = led_state.caps_lock ? 0xFF : 0x00;
+    G = led_state.scroll_lock ? 0xFF : 0x00;
+    B = led_state.num_lock ? 0xFF : 0x00;
+    if (indicators) {
+        rgblight_setrgb (R, G, B);
+    }
+    return true;
 }
